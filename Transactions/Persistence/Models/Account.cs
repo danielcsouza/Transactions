@@ -10,10 +10,23 @@ namespace Transactions.Persistence.Models
         public void setBalance(double value, OperationsEnum operation)
         {
             if (operation == OperationsEnum.Deposit)
+            {
                 Balance += value;
-
+            }
+            
             if (operation == OperationsEnum.withdraw)
+            {
                 Balance -= value;
+            }
+    
+        }
+
+        public bool VerifyBalanceWithDraw(double value)
+        {
+            if (Balance < value)
+                return false;
+
+            return true;
         }
     }    
 }

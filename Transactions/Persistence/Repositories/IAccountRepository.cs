@@ -9,7 +9,8 @@ namespace Transactions.Persistence.Repositories
         public bool AccountExist(int accountId);
         public double Transfer(Account account);
         public Account Deposit(Account account, double value);
-        public double Withdraw(Account account);
+        public Account Withdraw(Account account, double value);
+        public bool VerifyBalance(Account account, double value);
         public double GetBalance(Account account);
     }
 }

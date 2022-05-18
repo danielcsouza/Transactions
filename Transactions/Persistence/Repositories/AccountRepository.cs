@@ -49,15 +49,24 @@ namespace Transactions.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public double Withdraw(Account account)
+        public Account Withdraw(Account account, double value)
         {
-            account.setBalance(0, Enums.OperationsEnum.withdraw);
-            return account.Balance;
+             account.setBalance(value, Enums.OperationsEnum.withdraw);
+                        
+            _context.Accounts.Add(account).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            _context.SaveChanges();
+
+            return account;
         }
 
         public bool AccountExist(int accountId)
         {
             return _context.Accounts.Any(e => e.Id == accountId);
+        }
+
+        public bool VerifyBalance(Account account, double value)
+        {
+          return account.VerifyBalanceWithDraw(value);
         }
     }
 }

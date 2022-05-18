@@ -24,36 +24,65 @@ namespace Transactions.Controllers
                 return BadRequest(ModelState);
             }
 
-            bool accountExist = _accountRepository.AccountExist(model.Destination);
-
-            Account account;
-
-            if (accountExist)
+            if (model.Type.Equals("deposit"))
             {
-                account = _accountRepository.GetById(model.Destination);
+                #region Deposit
+                bool accountExist = _accountRepository.AccountExist(model.Destination);
 
-                _accountRepository.Deposit(account, model.Amount);
+                Account account;
+
+                if (accountExist)
+                {
+                    account = _accountRepository.GetById(model.Destination);
+
+                    _accountRepository.Deposit(account, model.Amount);
+                }
+                else
+                {
+                    var objAccount = new Account();
+
+                    double value = model.Amount;
+
+                    objAccount.Id = model.Destination;
+                    objAccount.setBalance(value, Enums.OperationsEnum.Deposit);
+
+                    account = _accountRepository.Create(objAccount);
+
+                }
+
+                return CreatedAtRoute(null, new { destination = new { id = account.Id, account.Balance } });
+                //return CreatedAtRoute("balance", new { id = account.Id }, new { destination = new { id = account.Id, account.Balance } });
+
+                #endregion
             }
-            else
+            else if (model.Type.Equals("withdraw"))
             {
-                var objAccount = new Account();
+                bool accountExist = _accountRepository.AccountExist(model.Origin);
+
+                Account account;
+
+                if (!accountExist)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    account = _accountRepository.GetById(model.Origin);
+
+                    bool verifyBalance = _accountRepository.VerifyBalance(account, model.Amount);
+
+                    if (!verifyBalance) return BadRequest(new { origin = account.Id, message = "insufficient funds" });
                     
-                double value = model.Amount;
+                    _accountRepository.Withdraw(account, model.Amount);
+                }
 
-                objAccount.Id = model.Destination;
-                objAccount.setBalance(value, Enums.OperationsEnum.Deposit);
-
-               account = _accountRepository.Create(objAccount);
-
+                 return CreatedAtRoute(null, new { origin = new { id = account.Id, account.Balance } });
+                // return CreatedAtRoute("balance", new {id = account.Id}, new { origin = new { id = account.Id, account.Balance } });
             }
 
+            return Ok();
 
-            return CreatedAtRoute(null,  new { destination = new { id = account.Id, account.Balance } });
         }
 
-        private object GetById()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
