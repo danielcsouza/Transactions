@@ -21,7 +21,7 @@ namespace Transactions.Controllers
         {
             if (accountId == 0) return BadRequest();
 
-            var account = _accountRepository.Get(accountId);
+            var account = _accountRepository.GetById(accountId);
 
             if (account == null) return NotFound();
 

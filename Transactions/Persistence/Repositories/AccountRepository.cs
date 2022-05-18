@@ -11,13 +11,26 @@ namespace Transactions.Persistence.Repositories
             _context = context;
         }
 
-        public double Deposit(Account account)
+        public Account Create(Account account)
         {
-            account.setBalance(0, Enums.OperationsEnum.Deposit);
-            return account.Balance;
+            _context.Accounts.Add(account);
+            _context.SaveChanges();
+
+            return account;
         }
 
-        public Account Get(int accountId)
+        public Account Deposit(Account account, double value)
+        {
+            account.setBalance(value, Enums.OperationsEnum.Deposit);
+
+            _context.Accounts.Add(account).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            _context.SaveChanges();
+            
+
+            return account;
+        }
+
+        public Account? GetById(int accountId)
         {
             var account =  _context.Accounts.SingleOrDefault(e => e.Id == accountId); 
             if (account == null) return null;
@@ -40,6 +53,11 @@ namespace Transactions.Persistence.Repositories
         {
             account.setBalance(0, Enums.OperationsEnum.withdraw);
             return account.Balance;
+        }
+
+        public bool AccountExist(int accountId)
+        {
+            return _context.Accounts.Any(e => e.Id == accountId);
         }
     }
 }
