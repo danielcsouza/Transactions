@@ -4,7 +4,7 @@ using Transactions.Persistence.Repositories;
 
 namespace Transactions.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class BalanceController : ControllerBase
     {
@@ -16,6 +16,7 @@ namespace Transactions.Controllers
         }
 
         [HttpGet]
+
         public IActionResult Get(int accountId)
         {
             if (accountId == 0) return BadRequest();
