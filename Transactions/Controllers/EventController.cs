@@ -51,7 +51,7 @@ namespace Transactions.Controllers
 
                 }
 
-                return CreatedAtRoute(null, new { destination = new { id = account.Id, account.Balance } });
+                return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
                 //return CreatedAtRoute("balance", new { id = account.Id }, new { destination = new { id = account.Id, account.Balance } });
 
                 #endregion
@@ -73,12 +73,12 @@ namespace Transactions.Controllers
 
                     bool verifyBalance = _accountRepository.VerifyBalance(account, model.Amount);
 
-                    if (!verifyBalance) return BadRequest(new { origin = account.Id, message = "insufficient funds" });
+                    if (!verifyBalance) return BadRequest(new { origin = account.Id.ToString(), message = "insufficient funds" });
                     
                     _accountRepository.Withdraw(account, model.Amount);
                 }
 
-                 return CreatedAtRoute(null, new { origin = new { id = account.Id, account.Balance } });
+                 return CreatedAtRoute(null, new { origin = new { id = account.Id.ToString(), account.Balance } });
                 // return CreatedAtRoute("balance", new {id = account.Id}, new { origin = new { id = account.Id, account.Balance } });
                 #endregion
             }

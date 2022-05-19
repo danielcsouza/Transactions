@@ -31,7 +31,7 @@ namespace Transactions.Persistence.Repositories
             return account;
         }
 
-        public Account? GetById(int accountId)
+        public Account? GetById(string accountId)
         {
             var account =  _context.Accounts.SingleOrDefault(e => e.Id == accountId); 
             if (account == null) return null;
@@ -55,7 +55,7 @@ namespace Transactions.Persistence.Repositories
             return account;
         }
 
-        public bool AccountExist(int accountId)
+        public bool AccountExist(string accountId)
         {
             return _context.Accounts.Any(e => e.Id == accountId);
         }

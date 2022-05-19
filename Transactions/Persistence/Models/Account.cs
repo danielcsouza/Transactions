@@ -4,7 +4,7 @@ namespace Transactions.Persistence.Models
 {
     public class Account
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public double Balance { get; private set; }
 
         public void setBalance(double value, OperationsEnum operation)

@@ -17,9 +17,9 @@ namespace Transactions.Controllers
 
         [HttpGet]
 
-        public IActionResult Get(int account_id)
+        public IActionResult Get(string account_id)
         {
-            if (account_id == 0) return BadRequest();
+            if (string.IsNullOrEmpty(account_id)) return BadRequest();
 
             var account = _accountRepository.GetById(account_id);
 

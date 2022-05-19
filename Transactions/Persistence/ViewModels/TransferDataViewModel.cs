@@ -13,7 +13,7 @@ namespace Transactions.Persistence.ViewModels
 
     public class TransferViewModelData
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public double Balance { get; set; }
     }
 }
