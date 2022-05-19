@@ -94,7 +94,7 @@ namespace Transactions.Controllers
 
                 if (!originExist)
                 {
-                    return NotFound();
+                    return NotFound(0);
                 }
                 else if (!destinationExist)
                 {
