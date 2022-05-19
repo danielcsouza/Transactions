@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using Transactions.Persistence.Repositories;
 
 namespace Transactions.Controllers
@@ -17,10 +18,13 @@ namespace Transactions.Controllers
         }
         [HttpPost]
         [Route("")]
-        public IActionResult Reset()
+        public StatusCodeResult Reset()
         {
             _accountRepository.Reset();
-            return Ok();
+            
+            return StatusCode(200);
+
         }
+
     }
 }

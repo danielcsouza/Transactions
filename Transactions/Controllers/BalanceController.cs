@@ -23,9 +23,9 @@ namespace Transactions.Controllers
 
             var account = _accountRepository.GetById(account_id);
 
-            if (account == null) return NotFound();
+            if (account == null) return NotFound(0);
 
-            return Ok(new {account.Balance});
+            return Ok(account.Balance);
 
         }
 

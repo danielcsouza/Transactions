@@ -65,7 +65,7 @@ namespace Transactions.Controllers
 
                 if (!accountExist)
                 {
-                    return NotFound();
+                    return NotFound(0);
                 }
                 else
                 {
