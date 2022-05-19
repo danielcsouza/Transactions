@@ -20,7 +20,7 @@ namespace Transactions.Controllers
         public IActionResult Reset()
         {
             _accountRepository.Reset();
-            return Ok();
+            return Ok("OK");
         }
     }
 }
