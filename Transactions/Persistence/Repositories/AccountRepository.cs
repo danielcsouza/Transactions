@@ -96,5 +96,13 @@ namespace Transactions.Persistence.Repositories
 
             };
         }
+
+        public void Reset()
+        {
+            _context.Accounts.RemoveRange(_context.Accounts.ToList());
+            _context.SaveChanges();
+
+        }
+
     }
 }

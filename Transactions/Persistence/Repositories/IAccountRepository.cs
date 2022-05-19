@@ -13,5 +13,7 @@ namespace Transactions.Persistence.Repositories
         public bool VerifyBalance(Account account, double value);
         public double GetBalance(Account account);
         public TransferDataViewModel Transfer(Account origin, Account destination, double value);
+        public void Reset();
+        
     }
 }
