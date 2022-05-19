@@ -23,6 +23,7 @@ namespace Transactions.Controllers
             {
                 return BadRequest(ModelState);
             }
+            
 
             if (model.Type.Equals("deposit"))
             {
@@ -57,6 +58,7 @@ namespace Transactions.Controllers
             }
             else if (model.Type.Equals("withdraw"))
             {
+                #region Withdraw
                 bool accountExist = _accountRepository.AccountExist(model.Origin);
 
                 Account account;
@@ -78,9 +80,43 @@ namespace Transactions.Controllers
 
                  return CreatedAtRoute(null, new { origin = new { id = account.Id, account.Balance } });
                 // return CreatedAtRoute("balance", new {id = account.Id}, new { origin = new { id = account.Id, account.Balance } });
+                #endregion
+            }
+            else if (model.Type.Equals("transfer"))
+            {
+                #region Transfer
+                bool originExist = _accountRepository.AccountExist(model.Origin);
+                bool destinationExist = _accountRepository.AccountExist(model.Destination);
+
+                Account origin;
+                Account destination;
+                TransferDataViewModel returnOperation;
+
+                if (!originExist)
+                {
+                    return NotFound();
+                }
+                else if (!destinationExist)
+                {
+                    var objAccount = new Account();
+
+                    objAccount.Id = model.Destination;
+                    destination = _accountRepository.Create(objAccount);
+                    origin = _accountRepository.GetById(model.Origin);
+
+                    returnOperation = _accountRepository.Transfer(origin, destination, model.Amount);
+
+                    return returnOperation.Operation == false ?
+                            BadRequest(new { message = "insuficient funds" }) :
+                            new CreatedAtRouteResult(null, returnOperation);
+                }
+
+                return BadRequest();
+                
+                #endregion
             }
 
-            return Ok();
+            return BadRequest();
 
         }
 

@@ -17,11 +17,11 @@ namespace Transactions.Controllers
 
         [HttpGet]
 
-        public IActionResult Get(int accountId)
+        public IActionResult Get(int account_id)
         {
-            if (accountId == 0) return BadRequest();
+            if (account_id == 0) return BadRequest();
 
-            var account = _accountRepository.GetById(accountId);
+            var account = _accountRepository.GetById(account_id);
 
             if (account == null) return NotFound();
 

@@ -1,4 +1,5 @@
 ﻿using Transactions.Persistence.Models;
+using Transactions.Persistence.ViewModels;
 
 namespace Transactions.Persistence.Repositories
 {
@@ -7,10 +8,10 @@ namespace Transactions.Persistence.Repositories
         public Account Create(Account account);
         public Account GetById(int accountId);
         public bool AccountExist(int accountId);
-        public double Transfer(Account account);
         public Account Deposit(Account account, double value);
         public Account Withdraw(Account account, double value);
         public bool VerifyBalance(Account account, double value);
         public double GetBalance(Account account);
+        public TransferDataViewModel Transfer(Account origin, Account destination, double value);
     }
 }
