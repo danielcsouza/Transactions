@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Transactions.Domains;
 using Transactions.Persistence.Repositories;
 using Transactions.Persistence.ViewModels;
 using Transactions.Services;
+using Transactions.Services.ViewModels;
 
 namespace Transactions.Controllers
 {
@@ -10,18 +10,21 @@ namespace Transactions.Controllers
     [ApiController]
     public class EventController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
         private readonly ITransaction _transaction;
+        private readonly IAccountRepository _accountRepository;
 
-        public EventController(IAccountRepository accountRepository, ITransaction transaction)
+        public EventController(ITransaction transaction, IAccountRepository accountRepository)
         {
-            _accountRepository = accountRepository;
             _transaction = transaction;
+            _accountRepository = accountRepository;
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] AccountViewModel model)
         {
+            Transaction transaction = new Transaction();
+            ResultViewModel returnTransaction = new ResultViewModel();
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -29,11 +32,13 @@ namespace Transactions.Controllers
 
             if (model.Type.Equals("deposit"))
             {
-                var operation = _transaction.Deposit(model.Destination, model.Amount);
+                transaction.DefineStrategy(new DepositTransaction(_accountRepository));
 
-                if (operation.Success)
+                returnTransaction = transaction.ExecuteTransaction(null, model.Destination, model.Amount);
+
+                if (returnTransaction.Success)
                 {
-                    return CreatedAtRoute(null, new { destination = new { id = operation.Destination, operation.Balance } });
+                    return CreatedAtRoute(null, new { destination = new { id = returnTransaction.Destination, returnTransaction.Balance } });
                 }
 
                 return BadRequest(0);
@@ -41,16 +46,18 @@ namespace Transactions.Controllers
             }
             else if (model.Type.Equals("withdraw"))
             {
-                var operation = _transaction.WhitDraw(model.Origin, model.Amount);
+                transaction.DefineStrategy(new WithDrawTransaction(_accountRepository));
 
-                if (operation.Success)
+                returnTransaction = transaction.ExecuteTransaction(model.Origin, null, model.Amount);
+
+                if (returnTransaction.Success)
                 {
-                    return CreatedAtRoute(null, new { origin = new { id = operation.Origin, operation.Balance } });
+                    return CreatedAtRoute(null, new { origin = new { id = returnTransaction.Origin, returnTransaction.Balance } });
                 }
 
-                if (!string.IsNullOrEmpty(operation.Messages))
+                if (!string.IsNullOrEmpty(returnTransaction.Message))
                 {
-                    return BadRequest(operation.Messages);
+                    return BadRequest(returnTransaction.Message);
                 }
 
                 return NotFound(0);
@@ -58,16 +65,18 @@ namespace Transactions.Controllers
             }
             else if (model.Type.Equals("transfer"))
             {
-                var operation = _transaction.Transfer(model.Origin, model.Destination, model.Amount);
+                transaction.DefineStrategy(new TransferTransaction(_accountRepository));
 
-                if (operation.Operation)
+                returnTransaction = transaction.ExecuteTransaction(model.Origin, model.Destination, model.Amount);
+
+                if (returnTransaction.Success)
                 {
-                    return CreatedAtRoute(null, operation);
+                    return CreatedAtRoute(null, returnTransaction.TransactionResult);
                 }
 
-                if (!string.IsNullOrEmpty(operation.Message))
+                if (!string.IsNullOrEmpty(returnTransaction.Message))
                 {
-                    return BadRequest(operation.Message);
+                    return BadRequest(returnTransaction.Message);
                 }
 
                 return NotFound(0);

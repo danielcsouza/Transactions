@@ -13,7 +13,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<ITransaction, Transaction>();
+
+builder.Services.AddScoped<ITransaction, DepositTransaction>();
+builder.Services.AddScoped<ITransaction, WithDrawTransaction>();
+builder.Services.AddScoped<ITransaction, TransferTransaction>();
+
 builder.Services.AddDbContext<TransactionContext>(options => options.UseInMemoryDatabase("Transactions"));
 
 
@@ -21,11 +25,11 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
 
 app.UseHttpsRedirection();
 
