@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Transactions.Persistence;
 using Transactions.Persistence.Repositories;
+using Transactions.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<ITransaction, Transaction>();
 builder.Services.AddDbContext<TransactionContext>(options => options.UseInMemoryDatabase("Transactions"));
 
 

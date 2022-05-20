@@ -2,6 +2,7 @@
 using Transactions.Domains;
 using Transactions.Persistence.Repositories;
 using Transactions.Persistence.ViewModels;
+using Transactions.Services;
 
 namespace Transactions.Controllers
 {
@@ -10,11 +11,14 @@ namespace Transactions.Controllers
     public class EventController : ControllerBase
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly ITransaction _transaction;
 
-        public EventController(IAccountRepository accountRepository)
+        public EventController(IAccountRepository accountRepository, ITransaction transaction)
         {
             _accountRepository = accountRepository;
+            _transaction = transaction;
         }
+
         [HttpPost]
         public IActionResult Post([FromBody] AccountViewModel model)
         {
@@ -23,108 +27,53 @@ namespace Transactions.Controllers
                 return BadRequest(ModelState);
             }
 
-
             if (model.Type.Equals("deposit"))
             {
-                #region Deposit
+                var operation = _transaction.Deposit(model.Destination, model.Amount);
 
-                bool accountExist = _accountRepository.AccountExist(model.Destination);
-
-                Account account;
-
-                if (accountExist)
+                if (operation.Success)
                 {
-                    account = _accountRepository.GetById(model.Destination);
-
-                    _accountRepository.Deposit(account, model.Amount);
-
-                    return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
-                }
-
-                if (!string.IsNullOrEmpty(model.Destination))
-                {
-                    var objAccount = new Account();
-
-                    double value = model.Amount;
-                    objAccount.Id = model.Destination;
-                    objAccount.setBalance(value, Enums.OperationsEnum.Deposit);
-
-                    account = _accountRepository.Create(objAccount);
-
-                    return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
+                    return CreatedAtRoute(null, new { destination = new { id = operation.Destination, operation.Balance } });
                 }
 
                 return BadRequest(0);
 
-                #endregion
             }
             else if (model.Type.Equals("withdraw"))
             {
-                #region Withdraw
-                bool accountExist = _accountRepository.AccountExist(model.Origin);
+                var operation = _transaction.WhitDraw(model.Origin, model.Amount);
 
-                Account account;
-
-                if (!accountExist)
+                if (operation.Success)
                 {
-                    return NotFound(0);
+                    return CreatedAtRoute(null, new { destination = new { id = operation.Origin, operation.Balance } });
                 }
 
-                account = _accountRepository.GetById(model.Origin);
+                if (!string.IsNullOrEmpty(operation.Messages))
+                {
+                    return BadRequest(operation.Messages);
+                }
 
-                bool verifyBalance = _accountRepository.VerifyBalance(account, model.Amount);
+                return NotFound(0);
 
-                if (!verifyBalance) return BadRequest(new { origin = account.Id.ToString(), message = "insufficient funds" });
-
-                _accountRepository.Withdraw(account, model.Amount);
-
-                return CreatedAtRoute(null, new { origin = new { id = account.Id.ToString(), account.Balance } });
-
-                #endregion
             }
             else if (model.Type.Equals("transfer"))
             {
-                #region Transfer
-                bool originExist = _accountRepository.AccountExist(model.Origin);
-                bool destinationExist = _accountRepository.AccountExist(model.Destination);
+                var operation = _transaction.Transfer(model.Origin, model.Destination, model.Amount);
 
-                Account origin;
-                Account destination;
-                TransferDataViewModel returnOperation;
-
-                if (!originExist)
+                if (operation.Operation)
                 {
-                    return NotFound(0);
+                    return CreatedAtRoute(null, operation);
                 }
 
-                if (!destinationExist)
+                if (!string.IsNullOrEmpty(operation.Message))
                 {
-                    if (string.IsNullOrEmpty(model.Destination))
-                    {
-                        return BadRequest(0);
-                    }
-
-                    var objAccount = new Account();
-
-                    objAccount.Id = model.Destination;
-                    destination = _accountRepository.Create(objAccount);
-                    origin = _accountRepository.GetById(model.Origin);
-
-                    returnOperation = _accountRepository.Transfer(origin, destination, model.Amount);
-
-                    return returnOperation.Operation == false ?
-                            BadRequest(new { message = "insuficient funds" }) :
-                            new CreatedAtRouteResult(null, returnOperation);
+                    return BadRequest(operation.Message);
                 }
 
-
-                return BadRequest(0);
-
-                #endregion
+                return NotFound(0);
             }
 
             return BadRequest(0);
-
         }
 
     }

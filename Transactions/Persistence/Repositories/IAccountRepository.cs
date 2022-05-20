@@ -1,5 +1,6 @@
 ﻿using Transactions.Domains;
 using Transactions.Persistence.ViewModels;
+using Transactions.Services.ViewModels;
 
 namespace Transactions.Persistence.Repositories
 {

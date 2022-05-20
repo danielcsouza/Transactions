@@ -5,7 +5,7 @@ namespace Transactions.Persistence
 {
     public class TransactionContext : DbContext
     {
-        public TransactionContext(DbContextOptions<TransactionContext> options) : base(options) { }
+        public TransactionContext(DbContextOptions<TransactionContext> options) : base(options) { } 
 
         public DbSet<Account> Accounts { get; set; }
         

@@ -4,7 +4,7 @@ namespace Transactions.Domains
 {
     public class Account
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public double Balance { get; private set; }
 
         public void setBalance(double value, OperationsEnum operation)

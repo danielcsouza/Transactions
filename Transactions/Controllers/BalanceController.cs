@@ -22,7 +22,7 @@ namespace Transactions.Controllers
 
             var account = _accountRepository.GetById(account_id);
 
-            if (account == null) return NotFound(0);
+            if (string.IsNullOrEmpty(account.Id)) return NotFound(0);
 
             return Ok(account.Balance);
 
