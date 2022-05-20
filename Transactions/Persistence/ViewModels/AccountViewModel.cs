@@ -1,6 +1,6 @@
 ﻿namespace Transactions.Persistence.ViewModels
 {
-    public class CreateAccountViewModel
+    public class AccountViewModel
     {
         public string Type { get; set; }
         public string? Origin { get; set; }

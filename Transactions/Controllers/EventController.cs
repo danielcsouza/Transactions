@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Transactions.Persistence.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Transactions.Domains;
 using Transactions.Persistence.Repositories;
 using Transactions.Persistence.ViewModels;
 
@@ -17,17 +16,18 @@ namespace Transactions.Controllers
             _accountRepository = accountRepository;
         }
         [HttpPost]
-        public IActionResult Post([FromBody] CreateAccountViewModel model)
+        public IActionResult Post([FromBody] AccountViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            
+
 
             if (model.Type.Equals("deposit"))
             {
                 #region Deposit
+
                 bool accountExist = _accountRepository.AccountExist(model.Destination);
 
                 Account account;
@@ -37,22 +37,24 @@ namespace Transactions.Controllers
                     account = _accountRepository.GetById(model.Destination);
 
                     _accountRepository.Deposit(account, model.Amount);
+
+                    return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
                 }
-                else
+
+                if (!string.IsNullOrEmpty(model.Destination))
                 {
                     var objAccount = new Account();
 
                     double value = model.Amount;
-
                     objAccount.Id = model.Destination;
                     objAccount.setBalance(value, Enums.OperationsEnum.Deposit);
 
                     account = _accountRepository.Create(objAccount);
 
+                    return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
                 }
 
-                return CreatedAtRoute(null, new { destination = new { id = account.Id.ToString(), account.Balance } });
-                //return CreatedAtRoute("balance", new { id = account.Id }, new { destination = new { id = account.Id, account.Balance } });
+                return BadRequest(0);
 
                 #endregion
             }
@@ -67,19 +69,17 @@ namespace Transactions.Controllers
                 {
                     return NotFound(0);
                 }
-                else
-                {
-                    account = _accountRepository.GetById(model.Origin);
 
-                    bool verifyBalance = _accountRepository.VerifyBalance(account, model.Amount);
+                account = _accountRepository.GetById(model.Origin);
 
-                    if (!verifyBalance) return BadRequest(new { origin = account.Id.ToString(), message = "insufficient funds" });
-                    
-                    _accountRepository.Withdraw(account, model.Amount);
-                }
+                bool verifyBalance = _accountRepository.VerifyBalance(account, model.Amount);
 
-                 return CreatedAtRoute(null, new { origin = new { id = account.Id.ToString(), account.Balance } });
-                // return CreatedAtRoute("balance", new {id = account.Id}, new { origin = new { id = account.Id, account.Balance } });
+                if (!verifyBalance) return BadRequest(new { origin = account.Id.ToString(), message = "insufficient funds" });
+
+                _accountRepository.Withdraw(account, model.Amount);
+
+                return CreatedAtRoute(null, new { origin = new { id = account.Id.ToString(), account.Balance } });
+
                 #endregion
             }
             else if (model.Type.Equals("transfer"))
@@ -96,8 +96,14 @@ namespace Transactions.Controllers
                 {
                     return NotFound(0);
                 }
-                else if (!destinationExist)
+
+                if (!destinationExist)
                 {
+                    if (string.IsNullOrEmpty(model.Destination))
+                    {
+                        return BadRequest(0);
+                    }
+
                     var objAccount = new Account();
 
                     objAccount.Id = model.Destination;
@@ -111,12 +117,13 @@ namespace Transactions.Controllers
                             new CreatedAtRouteResult(null, returnOperation);
                 }
 
-                return BadRequest();
-                
+
+                return BadRequest(0);
+
                 #endregion
             }
 
-            return BadRequest();
+            return BadRequest(0);
 
         }
 

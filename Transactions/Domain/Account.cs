@@ -1,6 +1,6 @@
 ﻿using Transactions.Enums;
 
-namespace Transactions.Persistence.Models
+namespace Transactions.Domains
 {
     public class Account
     {

@@ -1,4 +1,4 @@
-﻿using Transactions.Persistence.Models;
+﻿using Transactions.Domains;
 using Transactions.Persistence.ViewModels;
 
 namespace Transactions.Persistence.Repositories
@@ -31,10 +31,10 @@ namespace Transactions.Persistence.Repositories
             return account;
         }
 
-        public Account? GetById(string accountId)
+        public Account GetById(string? accountId)
         {
             var account =  _context.Accounts.SingleOrDefault(e => e.Id == accountId); 
-            if (account == null) return null;
+            if (account == null) return new Account();
 
             return account;
                     
@@ -55,8 +55,9 @@ namespace Transactions.Persistence.Repositories
             return account;
         }
 
-        public bool AccountExist(string accountId)
+        public bool AccountExist(string? accountId)
         {
+            if (accountId == null) return false;
             return _context.Accounts.Any(e => e.Id == accountId);
         }
 

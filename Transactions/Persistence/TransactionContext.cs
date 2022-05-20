@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Transactions.Persistence.Models;
+using Transactions.Domains;
 
 namespace Transactions.Persistence
 {
