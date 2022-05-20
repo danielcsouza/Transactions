@@ -45,7 +45,7 @@ namespace Transactions.Controllers
 
                 if (operation.Success)
                 {
-                    return CreatedAtRoute(null, new { destination = new { id = operation.Origin, operation.Balance } });
+                    return CreatedAtRoute(null, new { origin = new { id = operation.Origin, operation.Balance } });
                 }
 
                 if (!string.IsNullOrEmpty(operation.Messages))
